@@ -51,6 +51,53 @@ HAVING COUNT(*) = 1;
 
 -- Write SQL query here
 
+SELECT ci.Name
+FROM city ci
+WHERE ci.CountryCode = (
+  SELECT c.Code
+  FROM country c
+  JOIN countrylanguage cl ON c.Code = cl.CountryCode
+  WHERE cl.IsOfficial = 'T'
+    AND cl.Language = (
+      SELECT Language
+      FROM countrylanguage
+      WHERE IsOfficial = 'T'
+        AND CountryCode = (
+          SELECT Code
+          FROM country
+          WHERE Region = 'Southern Europe'
+          ORDER BY Population ASC
+          LIMIT 1
+        )
+      LIMIT 1
+    )
+  GROUP BY c.Code
+  HAVING COUNT(*) = 1
+)
+AND ci.Name != (
+  SELECT c.Name
+  FROM country c
+  JOIN countrylanguage cl ON c.Code = cl.CountryCode
+  WHERE cl.IsOfficial = 'T'
+    AND cl.Language = (
+      SELECT Language
+      FROM countrylanguage
+      WHERE IsOfficial = 'T'
+        AND CountryCode = (
+          SELECT Code
+          FROM country
+          WHERE Region = 'Southern Europe'
+          ORDER BY Population ASC
+          LIMIT 1
+        )
+      LIMIT 1
+    )
+  GROUP BY c.Code
+  HAVING COUNT(*) = 1
+)
+LIMIT 1;
+
+
 
 -- Clue #5: Oh no, she pulled a switch – there are two cities with very similar names, but in totally different parts of the globe! She's headed to South America as we speak; go find a city whose name is like the one we were headed to, but doesn't end the same. Find out the city, and do another search for what country it's in. Hurry!
 
