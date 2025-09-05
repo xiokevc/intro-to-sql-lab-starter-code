@@ -27,6 +27,25 @@ WHERE IsOfficial = 'T'
 
 -- Write SQL query here
 
+SELECT c.Name
+FROM country c
+JOIN countrylanguage cl ON c.Code = cl.CountryCode
+WHERE cl.IsOfficial = 'T'
+  AND cl.Language = (
+    SELECT Language
+    FROM countrylanguage
+    WHERE IsOfficial = 'T'
+      AND CountryCode = (
+        SELECT Code
+        FROM country
+        WHERE Region = 'Southern Europe'
+        ORDER BY Population ASC
+        LIMIT 1
+      )
+    LIMIT 1
+  )
+GROUP BY c.Code, c.Name
+HAVING COUNT(*) = 1;
 
 -- Clue #4: We're booking the first flight out – maybe we've actually got a chance to catch her this time. There are only two cities she could be flying to in the country. One is named the same as the country – that would be too obvious. We're following our gut on this one; find out what other city in that country she might be flying to.
 
